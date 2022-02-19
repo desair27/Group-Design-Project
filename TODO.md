@@ -1,0 +1,1 @@
+[ ] fetch current location from map
