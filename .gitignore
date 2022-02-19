@@ -1,2 +1,15 @@
-android_api_key.txt
-node_modules
+node_modules/
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.vscode
+
+# macOS
+.DS_Store
