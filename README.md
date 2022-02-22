@@ -1,5 +1,8 @@
 # City Explorer
 
+## Hours/meeting track
+https://docs.google.com/document/d/1LaBXteUXss_LnbVNX8veOXt5EDebm1RcOwW54OgdF5Y/edit?usp=sharing
+
 ## Set up
 To set up the app, have NodeJS installed,  and then:
 ```
