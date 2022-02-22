@@ -57,7 +57,7 @@ const HomeScreen = () => {
             <MapViewDirections
                 origin={coordinates[0]}
                 destination={coordinates[1]}
-                apikey={"AIzaSyBU5hoDK7TfS3a9t_z9jvLd5CRfZXs7b2A"}
+                apikey={"__INSERT__"}
                 strokeWidth={4}
                 strokeColor="#111111"
             />
