@@ -8,6 +8,9 @@ import MapViewDirections from 'react-native-maps-directions';
 
 import styles from '../../styles';
 
+/* WHEN THIS APP LOADS, IT WILL FAIL, ALTHOUGH A RELOAD GETS THE APP TO LOAD,
+HOWEVER, WE DO NOT SEE THE ROUTE AS WE SHOULD */
+
 const HomeScreen = () => {
     // const [position, setPosition] = useState({
     //     latitude: 10,
