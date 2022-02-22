@@ -8,8 +8,7 @@ import MapViewDirections from 'react-native-maps-directions';
 
 import styles from '../../styles';
 
-/* WHEN THIS APP LOADS, IT WILL FAIL, ALTHOUGH A RELOAD GETS THE APP TO LOAD,
-HOWEVER, WE DO NOT SEE THE ROUTE AS WE SHOULD */
+/* ERROR WITH THE API KEY */
 
 const HomeScreen = () => {
     // const [position, setPosition] = useState({
@@ -56,16 +55,23 @@ const HomeScreen = () => {
                     longitudeDelta: 0.0421,
                 }}
                 showsUserLocation={true}
-            />
-            <MapViewDirections
-                origin={coordinates[0]}
-                destination={coordinates[1]}
-                apikey={"__INSERT__"}
-                strokeWidth={4}
-                strokeColor="#111111"
-            />
+            >
+                <MapViewDirections
+                    origin={coordinates[0]}
+                    destination={coordinates[1]}
+                    apikey={"AIzaSyBU5hoDK7TfS3a9t_z9jvLd5CRfZXs7b2A"}
+                    strokeWidth={4}
+                    strokeColor="#111111"
+                />
+            </MapView>
         </View>
     );
 };
 
 export default HomeScreen;
+
+
+
+
+
+/*  */
