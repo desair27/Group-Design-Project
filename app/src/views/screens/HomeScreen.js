@@ -6,6 +6,9 @@ import { SafeAreaView, View, Text, TextInput, Image, Pressable } from 'react-nat
 import MapView from 'react-native-maps';
 // import Geolocation from '@react-native-community/geolocation';
 
+import Placesearch from 'react-native-placesearch';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+
 import styles from '../../styles';
 const API_KEY = process.env.PLACES_API_KEY
 const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
@@ -35,7 +38,7 @@ const HomeScreen = () => {
 
     return (
         <View style={styles.container}>
-            <TextInput placeholder='Search Location' style={styles.input} />
+              
             <MapView
                 style={styles.map}
                 // initialRegion={position}
@@ -47,7 +50,20 @@ const HomeScreen = () => {
                 }}
                 showsUserLocation={true}
             />
+            <GooglePlacesAutocomplete
+              style={styles.searchBar}
+      placeholder='Search'
+      onPress={(data, details = null) => {
+        // 'details' is provided when fetchDetails = true
+        console.log(data, details);
+      }}
+      query={{
+        key: 'AIzaSyA_tO6Jw_PPCnL0qMpq7dzny6hueJJGz1w',
+        language: 'en',
+      }}
+    />
         </View>
+        
     );
 };
 

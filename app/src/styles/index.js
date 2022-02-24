@@ -64,6 +64,11 @@ const styles = StyleSheet.create({
         height: 530,
         width: 1000,
     },
+
+    searchBar: {
+        height: 500,
+        width: 500,
+    }
 });
 
 export default styles;
