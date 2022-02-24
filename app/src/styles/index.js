@@ -61,7 +61,8 @@ const styles = StyleSheet.create({
     },
 
     map: {
-        ...StyleSheet.absoluteFillObject,
+        height: 530,
+        width: 1000,
     },
 });
 
