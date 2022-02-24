@@ -1,12 +1,16 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
+import { SafeAreaView, View, Text, TextInput, Image, Pressable } from 'react-native';
 
-import { View } from 'react-native';
+//import { View } from 'react-native';
 import MapView from 'react-native-maps';
 import RNLocation from "react-native-location";
 
 import styles from '../../styles';
+const API_KEY = process.env.PLACES_API_KEY
+const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
 
+console.log(API_URL)
 const HomeScreen = () => {
 
     RNLocation.configure({
@@ -61,7 +65,11 @@ const HomeScreen = () => {
     return (
         
         <View style={styles.container}>
+
             const { location } = this.state;
+
+            <TextInput placeholder='Search Location' style={styles.input} />
+
             <MapView
                 style={styles.map}
                 
