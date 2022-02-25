@@ -58,7 +58,7 @@ const HomeScreen = () => {
         console.log(data, details);
       }}
       query={{
-        key: 'AIzaSyA_tO6Jw_PPCnL0qMpq7dzny6hueJJGz1w',
+        key: 'key',
         language: 'en',
       }}
     />
