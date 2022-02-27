@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TextInput, Image, Pressable } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 //import { View } from 'react-native';
 import MapView from 'react-native-maps';
@@ -13,25 +14,25 @@ const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&lib
 console.log(API_URL)
 const HomeScreen = () => {
 
-    RNLocation.configure({
-        distanceFilter: 5.0
-    })
+    // RNLocation.configure({
+    //     distanceFilter: 5.0
+    // })
 
-    RNLocation.requestPermission({
-        android:{
-            detail: "coarse",
-            rationale: {
-                title: "Allow location access?",
-                message: "CityExplorer uses your location to track your exploration progress. Please press Allow.",
-                buttonPositive: "Allow",
-                buttonNegative: "Do not allow"
-            }
-        }
-    }).then(granted => {
-        if (granted) {
-            this._startUpdatingLocation();
-        }
-    })
+    // RNLocation.requestPermission({
+    //     android:{
+    //         detail: "coarse",
+    //         rationale: {
+    //             title: "Allow location access?",
+    //             message: "CityExplorer uses your location to track your exploration progress. Please press Allow.",
+    //             buttonPositive: "Allow",
+    //             buttonNegative: "Do not allow"
+    //         }
+    //     }
+    // }).then(granted => {
+    //     if (granted) {
+    //         this._startUpdatingLocation();
+    //     }
+    // })
     // const [position, setPosition] = useState({
     //     latitude: 10,
     //     longitude: 10,
@@ -54,21 +55,20 @@ const HomeScreen = () => {
     // }, []);
 
     
-    _startUpdatingLocation = () => {
-        this.locationSubscription = RNLocation.subscribeToLocationUpdates(
-            locations => {
-                this.setState({ location: locations[0] });
+    // _startUpdatingLocation = () => {
+    //     this.locationSubscription = RNLocation.subscribeToLocationUpdates(
+    //         locations => {
+    //             this.setState({ location: locations[0] });
 
-        })
-    }
+    //     })
+    // }
 
     return (
         
         <View style={styles.container}>
 
-            const { location } = this.state;
+            {/* const { location } = this.state; */}
 
-            <TextInput placeholder='Search Location' style={styles.input} />
 
             <MapView
                 style={styles.map}
@@ -76,15 +76,25 @@ const HomeScreen = () => {
                 // initialRegion={position}
                 initialRegion={{
 
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    //latitude: 53.34366745,
-                    //longitude: -6.254444724511822,
+                    // latitude: location.latitude,
+                    // longitude: location.longitude,
+                    latitude: 53.34366745,
+                    longitude: -6.254444724511822,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
                 showsUserLocation={true}
+                loadingEnabled={true}
             />
+
+
+        <TextInput placeholder='Search here' style={styles.search} />
+        <Icon
+            name='location-pin'
+            color={'#000'}
+            size={25}
+            style={styles.searchIcon}
+        />
         </View>
     );
 };
