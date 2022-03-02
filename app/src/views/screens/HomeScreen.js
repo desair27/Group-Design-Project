@@ -1,85 +1,155 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TextInput, Image, Pressable } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { SafeAreaView, View, Text, TextInput, Image, Pressable, Button, PermissionsAndroid, ToastAndroid, Platform, Alert, Linking, ScrollView, Switch } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons'
+import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
+
+const LOCATION_TASK_NAME = "LOCATION_TASK"
+let foregroundSubscription = null
 
 //import { View } from 'react-native';
-import MapView from 'react-native-maps';
-import RNLocation from "react-native-location";
+
 
 import styles from '../../styles';
+import MapView from 'react-native-maps';
+import appConfig from '../../../../app.json'
+
 const API_KEY = process.env.PLACES_API_KEY
 const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
 
+
+
 console.log(API_URL)
+
+TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+    if (error) {
+        console.error(error)
+        return
+    }
+    if (data) {
+        // Extract location coordinates from data
+        const { locations } = data
+        const location = locations[0]
+        if (location) {
+            console.log("Location in background", location.coords)
+        }
+    }
+})
+
 const HomeScreen = () => {
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
 
-    // RNLocation.configure({
-    //     distanceFilter: 5.0
-    // })
+    // Define position state: {latitude: number, longitude: number}
+    const [position, setPosition] = useState(null)
 
-    // RNLocation.requestPermission({
-    //     android:{
-    //         detail: "coarse",
-    //         rationale: {
-    //             title: "Allow location access?",
-    //             message: "CityExplorer uses your location to track your exploration progress. Please press Allow.",
-    //             buttonPositive: "Allow",
-    //             buttonNegative: "Do not allow"
-    //         }
-    //     }
-    // }).then(granted => {
-    //     if (granted) {
-    //         this._startUpdatingLocation();
-    //     }
-    // })
-    // const [position, setPosition] = useState({
-    //     latitude: 10,
-    //     longitude: 10,
-    //     latitudeDelta: 0.001,
-    //     longitudeDelta: 0.001,
-    // });
+    // Request permissions right after starting the app
+    useEffect(() => {
+        const requestPermissions = async () => {
+            const foreground = await Location.requestForegroundPermissionsAsync()
+            if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
+        }
+        requestPermissions()
+    }, [])
 
-    // useEffect(() => {
-    //     Geolocation.getCurrentPosition((pos) => {
-    //         const crd = pos.coords;
-    //         setPosition({
-    //             latitude: crd.latitude,
-    //             longitude: crd.longitude,
-    //             latitudeDelta: 0.0421,
-    //             longitudeDelta: 0.0421,
-    //         });
-    //     }).catch((err) => {
-    //         console.log(err);
-    //     });
-    // }, []);
+    // Start location tracking in foreground
+    const startForegroundUpdate = async () => {
+        // Check if foreground permission is granted
+        const { granted } = await Location.getForegroundPermissionsAsync()
+        if (!granted) {
+            console.log("location tracking denied")
+            return
+        }
 
-    
-    // _startUpdatingLocation = () => {
-    //     this.locationSubscription = RNLocation.subscribeToLocationUpdates(
-    //         locations => {
-    //             this.setState({ location: locations[0] });
+        // Make sure that foreground location tracking is not running
+        foregroundSubscription?.remove()
 
-    //     })
-    // }
+        // Start watching position in real-time
+        foregroundSubscription = await Location.watchPositionAsync(
+            {
+                // For better logs, we set the accuracy to the most sensitive option
+                accuracy: Location.Accuracy.BestForNavigation,
+            },
+            location => {
+                setPosition(location.coords)
+            }
+        )
+    }
+
+    // Stop location tracking in foreground
+    const stopForegroundUpdate = () => {
+        foregroundSubscription?.remove()
+        setPosition(null)
+    }
+
+    // Start location tracking in background
+    const startBackgroundUpdate = async () => {
+        // Don't track position if permission is not granted
+        const { granted } = await Location.getBackgroundPermissionsAsync()
+        if (!granted) {
+            console.log("location tracking denied")
+            return
+        }
+
+        // Make sure the task is defined otherwise do not start tracking
+        const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
+        if (!isTaskDefined) {
+            console.log("Task is not defined")
+            return
+        }
+
+        // Don't track if it is already running in background
+        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+            LOCATION_TASK_NAME
+        )
+        if (hasStarted) {
+            console.log("Already started")
+            return
+        }
+
+        await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+            // For better logs, we set the accuracy to the most sensitive option
+            accuracy: Location.Accuracy.BestForNavigation,
+            // Make sure to enable this notification if you want to consistently track in the background
+            showsBackgroundLocationIndicator: true,
+            foregroundService: {
+                notificationTitle: "Location",
+                notificationBody: "Location tracking in background",
+                notificationColor: "#fff",
+            },
+        })
+    }
+
+    // Stop location tracking in background
+    const stopBackgroundUpdate = async () => {
+        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+            LOCATION_TASK_NAME
+        )
+        if (hasStarted) {
+            await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+            console.log("Location tacking stopped")
+        }
+    }
 
     return (
-        
+
+
+
+
         <View style={styles.container}>
 
             {/* const { location } = this.state; */}
 
-
             <MapView
                 style={styles.map}
-                
-                // initialRegion={position}
+
                 initialRegion={{
 
-                    // latitude: location.latitude,
-                    // longitude: location.longitude,
-                    latitude: 53.34366745,
-                    longitude: -6.254444724511822,
+                    latitude: position?.latitude,
+                    longitude: position?.longitude,
+                    //     //     //latitude: 53.34366745,
+                    //     //     //longitude: -6.254444724511822,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
@@ -87,14 +157,25 @@ const HomeScreen = () => {
                 loadingEnabled={true}
             />
 
+            <Button
+                onPress={startForegroundUpdate}
+                title="Start in foreground"
+                color="green"
+            />
 
-        <TextInput placeholder='Search here' style={styles.search} />
-        <Icon
-            name='location-pin'
-            color={'#000'}
-            size={25}
-            style={styles.searchIcon}
-        />
+            <Button
+                onPress={startBackgroundUpdate}
+                title="Start in background"
+                color="green"
+            />
+
+            <TextInput placeholder='Search here' style={styles.search} />
+            <Icon
+                name='location-pin'
+                color={'#000'}
+                size={25}
+                style={styles.searchIcon}
+            />
         </View>
     );
 };
