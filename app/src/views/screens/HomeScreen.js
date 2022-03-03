@@ -160,15 +160,15 @@ const HomeScreen = () => {
                     longitudeDelta: 0.0421,
                 }}
                 showsUserLocation={true}
-            />
-
-            <MapViewDirections
-                origin={coordinates[0]}
-                destination={coordinates[1]}
-                apikey={"AIzaSyBU5hoDK7TfS3a9t_z9jvLd5CRfZXs7b2A"}
-                strokeWidth={4}
-                strokeColor="#111111"
-            />
+            >
+                <MapViewDirections
+                    origin={coordinates[0]}
+                    destination={coordinates[1]}
+                    apikey={"AIzaSyC8ZxFH_dJPCPfhiEcDWOZHms5Frh-bU6E"}
+                    strokeWidth={4}
+                    strokeColor="#111111"
+                />
+            </MapView>
 
             <Button
                 onPress={startForegroundUpdate}
