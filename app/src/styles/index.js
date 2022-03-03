@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import colors from '../constants/color';
 
 const styles = StyleSheet.create({
@@ -14,6 +14,29 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         fontSize: 16,
         fontWeight: '500',
+    },
+
+    search: {
+        position: 'absolute',
+        top: '8%',
+        width: 300,
+        height: 40,
+        fontWeight: '500',
+        borderRadius: 20,
+        marginBottom: Dimensions.get('window').height * 0.92,
+        color: '#000',
+        borderColor: '#666',
+        backgroundColor: '#f8f8f9',
+        borderWidth: 1.3,
+        paddingHorizontal: 45,
+        fontSize: 16,
+    },
+
+    searchIcon: {
+        position: 'absolute',
+        top: '9%',
+        left: '12%',
+        color: '#28b1a3',
     },
 
     inputIcon: { marginTop: 15, position: 'absolute' },
@@ -61,7 +84,11 @@ const styles = StyleSheet.create({
     },
 
     map: {
-        ...StyleSheet.absoluteFillObject,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
     },
 });
 
