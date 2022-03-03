@@ -52,72 +52,77 @@ const HomeScreen = () => {
         requestPermissions()
     }, [])
 
-    // Start location tracking in foreground
-    const startForegroundUpdate = async () => {
+    useEffect(() => {
+        const startForegroundUpdate = async () => {
         // Check if foreground permission is granted
-        const { granted } = await Location.getForegroundPermissionsAsync()
-        if (!granted) {
-            console.log("location tracking denied")
-            return
+            const { granted } = await Location.getForegroundPermissionsAsync()
+                if (!granted) {
+                    console.log("location tracking denied")
+                    return
+                }
+
+                 // Make sure that foreground location tracking is not running
+                foregroundSubscription?.remove()
+
+                // Start watching position in real-time
+                foregroundSubscription = await Location.watchPositionAsync(
+                {
+                    // For better logs, we set the accuracy to the most sensitive option
+                    accuracy: Location.Accuracy.BestForNavigation,
+                },
+                location => {
+                    setPosition(location.coords)
+                }
+            )
         }
+        startForegroundUpdate()
+    }, [])
 
-        // Make sure that foreground location tracking is not running
-        foregroundSubscription?.remove()
-
-        // Start watching position in real-time
-        foregroundSubscription = await Location.watchPositionAsync(
-            {
+    useEffect(() => {
+        const startBackgroundUpdate = async () => {
+            // Don't track position if permission is not granted
+            const { granted } = await Location.getBackgroundPermissionsAsync()
+            if (!granted) {
+                console.log("location tracking denied")
+                return
+            }
+    
+            // Make sure the task is defined otherwise do not start tracking
+            const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
+            if (!isTaskDefined) {
+                console.log("Task is not defined")
+                return
+            }
+    
+            // Don't track if it is already running in background
+            const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+                LOCATION_TASK_NAME
+            )
+            if (hasStarted) {
+                console.log("Already started")
+                return
+            }
+    
+            await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
                 // For better logs, we set the accuracy to the most sensitive option
                 accuracy: Location.Accuracy.BestForNavigation,
-            },
-            location => {
-                setPosition(location.coords)
-            }
-        )
-    }
+                // Make sure to enable this notification if you want to consistently track in the background
+                showsBackgroundLocationIndicator: true,
+                foregroundService: {
+                    notificationTitle: "Location",
+                    notificationBody: "Location tracking in background",
+                    notificationColor: "#fff",
+                },
+            })
+        }
+        startBackgroundUpdate()
+    
+    }, [])
 
     // Stop location tracking in foreground
     const stopForegroundUpdate = () => {
         foregroundSubscription?.remove()
         setPosition(null)
-    }
-
-    // Start location tracking in background
-    const startBackgroundUpdate = async () => {
-        // Don't track position if permission is not granted
-        const { granted } = await Location.getBackgroundPermissionsAsync()
-        if (!granted) {
-            console.log("location tracking denied")
-            return
-        }
-
-        // Make sure the task is defined otherwise do not start tracking
-        const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
-        if (!isTaskDefined) {
-            console.log("Task is not defined")
-            return
-        }
-
-        // Don't track if it is already running in background
-        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
-            LOCATION_TASK_NAME
-        )
-        if (hasStarted) {
-            console.log("Already started")
-            return
-        }
-
-        await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-            // For better logs, we set the accuracy to the most sensitive option
-            accuracy: Location.Accuracy.BestForNavigation,
-            // Make sure to enable this notification if you want to consistently track in the background
-            showsBackgroundLocationIndicator: true,
-            foregroundService: {
-                notificationTitle: "Location",
-                notificationBody: "Location tracking in background",
-                notificationColor: "#fff",
-            },
-        })
     }
 
     // Stop location tracking in background
@@ -165,22 +170,11 @@ const HomeScreen = () => {
             <MapViewDirections
                 origin={coordinates[0]}
                 destination={coordinates[1]}
-                apikey={"AIzaSyBU5hoDK7TfS3a9t_z9jvLd5CRfZXs7b2A"}
+                apikey={""}
                 strokeWidth={4}
                 strokeColor="#111111"
             />
 
-            <Button
-                onPress={startForegroundUpdate}
-                title="Start in foreground"
-                color="green"
-            />
-
-            <Button
-                onPress={startBackgroundUpdate}
-                title="Start in background"
-                color="green"
-            />
 
             <TextInput placeholder='Search here' style={styles.search} />
             <Icon
