@@ -10,6 +10,10 @@ let foregroundSubscription = null
 
 //import { View } from 'react-native';
 
+import { View } from 'react-native';
+import MapView from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+// import Geolocation from '@react-native-community/geolocation';
 
 import styles from '../../styles';
 import MapView from 'react-native-maps';
@@ -36,6 +40,8 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
         }
     }
 })
+
+/* ERROR WITH THE API KEY */
 
 const HomeScreen = () => {
     const [location, setLocation] = useState(null);
@@ -132,6 +138,17 @@ const HomeScreen = () => {
         }
     }
 
+    const [coordinates] = useState([
+        {
+          latitude: 53.332412, 
+          longitude: -6.270177,
+        },
+        {
+          latitude: 53.333725,
+          longitude: -6.269514,
+        },
+      ]);
+
     return (
 
 
@@ -154,6 +171,15 @@ const HomeScreen = () => {
                     longitudeDelta: 0.0421,
                 }}
                 showsUserLocation={true}
+            >
+                <MapViewDirections
+                    origin={coordinates[0]}
+                    destination={coordinates[1]}
+                    apikey={"AIzaSyBU5hoDK7TfS3a9t_z9jvLd5CRfZXs7b2A"}
+                    strokeWidth={4}
+                    strokeColor="#111111"
+                />
+            </MapView>
                 loadingEnabled={true}
             />
 
@@ -181,3 +207,9 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
+
+
+
+
+
+/*  */
