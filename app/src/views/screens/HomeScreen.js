@@ -150,6 +150,8 @@ const HomeScreen = () => {
     return (
         <View style={styles.container}>
 
+
+
             {/* const { location } = this.state; */}
 
             <MapView
@@ -159,8 +161,6 @@ const HomeScreen = () => {
 
                     latitude: position?.latitude,
                     longitude: position?.longitude,
-                    //     //     //latitude: 53.34366745,
-                    //     //     //longitude: -6.254444724511822,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
@@ -168,8 +168,10 @@ const HomeScreen = () => {
             >
                 <MapViewDirections
                     origin={coordinates[0]}
-                    destination={coordinates[1]}
-                    apikey={"AIzaSyC8ZxFH_dJPCPfhiEcDWOZHms5Frh-bU6E"}
+                    destination={coordinates[1]} //DEMO
+                    //destination={coordinates[coordinates.length() - 1]}
+                    //waypoints={[position?.]}
+                    apikey={""}
                     strokeWidth={4}
                     strokeColor="#111111"
                 />
