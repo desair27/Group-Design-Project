@@ -25,6 +25,13 @@ Follow these instructions to get the android emulator set up (note that in the p
 ## Using react-native-maps
 To use this module on android, we need to have an API key. To get this API key, a billing account is needed.
 
-To use on iOS, given you use the iOS maps and not Google Maps, no API key is required.
+Google Maps is required instead of Apple maps (applicatble if running on iOS device) because of the react-native-maps-directions dependancy.
 
-Note that if using an API key from a billing account, do not store the key in this repo.
+Reminder to not store any API key, especially one connected to a billing account, in this repo.
+
+## Simulating the location on an emulator on Windows 10
+- Enable telnet
+- Open the command line
+- Enter 'telnet localhost 5554'
+- Follow instructions on screen to authenticate (e.g. auth AorHsFy4jpuB/ScO)
+- Enter 'geo fix 53.3432489 -6.2685455'
