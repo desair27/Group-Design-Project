@@ -11,6 +11,8 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
+import { API_KEY } from "@env"
+
 const LOCATION_TASK_NAME = "LOCATION_TASK"
 let foregroundSubscription = null
 
@@ -33,8 +35,6 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
         }
     }
 })
-
-/* ERROR WITH THE API KEY */
 
 const HomeScreen = () => {
     const [location, setLocation] = useState(null);
@@ -66,14 +66,14 @@ const HomeScreen = () => {
 
                 // Start watching position in real-time
                 foregroundSubscription = await Location.watchPositionAsync(
-                {
-                    // For better logs, we set the accuracy to the most sensitive option
-                    accuracy: Location.Accuracy.BestForNavigation,
-                },
-                location => {
-                    setPosition(location.coords)
-                }
-            )
+                    {
+                        // For better logs, we set the accuracy to the most sensitive option
+                        accuracy: Location.Accuracy.BestForNavigation,
+                    },
+                    location => {
+                        setPosition(location.coords)
+                    }
+                )
         }
         startForegroundUpdate()
     }, [])
@@ -149,16 +149,9 @@ const HomeScreen = () => {
 
     return (
         <View style={styles.container}>
-
-
-
-            {/* const { location } = this.state; */}
-
             <MapView
                 style={styles.map}
-
                 initialRegion={{
-
                     latitude: position?.latitude,
                     longitude: position?.longitude,
                     latitudeDelta: 0.0922,
@@ -171,7 +164,7 @@ const HomeScreen = () => {
                     destination={coordinates[1]} //DEMO
                     //destination={coordinates[coordinates.length() - 1]}
                     //waypoints={[position?.]}
-                    apikey={""}
+                    apikey={API_KEY}
                     strokeWidth={4}
                     strokeColor="#111111"
                 />
