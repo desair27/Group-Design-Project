@@ -12,7 +12,7 @@ npm install -g expo-cli
 
 To run on the web:
 ```
-npm start
+expo start
 ```
 ## Running the app
 To run on a native device emulator, you must first install one. For example, the Genymotion emulator (more lightweight thatn Android Studio, and better fit for testing purposes/cross-platform). However, Android Studio's emulator might be easier to get running with Expo.
