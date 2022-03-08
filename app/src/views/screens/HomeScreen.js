@@ -24,7 +24,10 @@ let foregroundSubscription = null
 const HomeScreen = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
-
+    /* An array of 2D arrays. Each 2D array has the coordinates for a specific
+       route, split up into arrays of size 15 because 15 is the max number of
+       waypoints in a route for react-native-maps*/ 
+    const [seenRoads, setSeenRoads] = useState([[[]]])
     // Define position state: {latitude: number, longitude: number}
     const [position, setPosition] = useState(null)
    
@@ -58,6 +61,28 @@ const HomeScreen = () => {
             }
         }
     })
+
+    useEffect(() => {
+        if(seenRoads){
+          // If there are no routes, create one
+          if(seenRoads.length == 0){
+              seenRoads.push([]);
+          }
+  
+          // Insert another segment if the the current segment has size >= 15
+          let lastRoute =  seenRoads[seenRoads.length - 1]
+          let lastSegment = lastRoute[lastRoute.length - 1]
+          if(lastSegment >= 15) {
+              lastRoute.push([position])
+          } else {
+              lastSegment.push(position)
+              lastRoute.push(lastSegment)
+          }
+  
+          // Append updated or new route coordinate
+          seenRoads[seenRoads.length - 1] = lastRoute
+        }
+      }, [position])
 
     // Request permissions right after starting the app
     useEffect(() => {
