@@ -11,7 +11,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
-import { API_KEY } from "@env"
+//import { API_KEY } from "@env"
 
 const LOCATION_TASK_NAME = "LOCATION_TASK"
 let foregroundSubscription = null
@@ -46,13 +46,14 @@ const HomeScreen = () => {
                     console.log("Current position state: ", position)
                 }
                 else if(
-                    position.latitude != location.coords.latitude && 
-                    position.longitude != location.coords.longitude
+                    (position.latitude - 0.00001 > location.coords.latitude || location.coords.latitude > position.latitude + 0.00001) && 
+                    (position.longitude - 0.00001 > location.coords.longitude || location.coords.longitude > position.longitude + 0.00001)
                 ){
                     console.log("Current position state: ", position)
                     console.log("Setting new geolocation")
                     setPosition(location.coords)
                     console.log("Current position state: ", position)
+                    console.log("point reached")
                 }
             }
         }
@@ -178,7 +179,7 @@ const HomeScreen = () => {
                     destination={coordinates[1]} //DEMO
                     //destination={coordinates[coordinates.length() - 1]}
                     //waypoints={[position?.]}
-                    apikey={API_KEY}
+                    apikey={""}
                     strokeWidth={4}
                     strokeColor="#111111"
                 />
