@@ -1,41 +1,62 @@
-import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TextInput, Image, Pressable } from 'react-native';
+import { View, TextInput, Button } from 'react-native';
 
-//import { View } from 'react-native';
-import MapView from 'react-native-maps';
-// import Geolocation from '@react-native-community/geolocation';
-
-import Placesearch from 'react-native-placesearch';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import 'react-native-gesture-handler';
 
 import styles from '../../styles';
-const API_KEY = process.env.PLACES_API_KEY
-const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
+import MapView from 'react-native-maps';
+import Icon from 'react-native-vector-icons/MaterialIcons'
+import MapViewDirections from 'react-native-maps-directions';
 
-console.log(API_URL)
+import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
+
+import { API_KEY } from "@env"
+
+const LOCATION_TASK_NAME = "LOCATION_TASK"
+let foregroundSubscription = null
+
+// const API_KEY = process.env.PLACES_API_KEY
+// const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
+
+// console.log(API_URL)
+
 const HomeScreen = () => {
-  TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
-    if (error) {
-        console.error(error)
-        return
-    }
-    if (data) {
-        // Extract location coordinates from data
-        const { locations } = data
-        const location = locations[0]
-        if (location) {
-            console.log("Location in background", location.coords)
-        }
-    }
-  })
-
-  const HomeScreen = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
 
     // Define position state: {latitude: number, longitude: number}
     const [position, setPosition] = useState(null)
+   
+    TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+        if (error) {
+            console.error(error)
+            return
+        }
+        if (data) {
+            // Extract location coordinates from data
+            const { locations } = data
+            const location = locations[0]
+            if (location) {
+                console.log("Location read in background: ", location.coords)
+                if(!position) {
+                    console.log("Current position state: ", position)
+                    console.log("Initiating geolocation")
+                    setPosition(location.coords)
+                    console.log("Current position state: ", position)
+                }
+                else if(
+                    position.latitude != location.coords.latitude && 
+                    position.longitude != location.coords.longitude
+                ){
+                    console.log("Current position state: ", position)
+                    console.log("Setting new geolocation")
+                    setPosition(location.coords)
+                    console.log("Current position state: ", position)
+                }
+            }
+        }
+    })
 
     // Request permissions right after starting the app
     useEffect(() => {
@@ -46,7 +67,7 @@ const HomeScreen = () => {
         requestPermissions()
     }, [])
 
-    useEffect(() => {
+/*     useEffect(() => {
         const startForegroundUpdate = async () => {
         // Check if foreground permission is granted
             const { granted } = await Location.getForegroundPermissionsAsync()
@@ -54,10 +75,8 @@ const HomeScreen = () => {
                     console.log("location tracking denied")
                     return
                 }
-
                  // Make sure that foreground location tracking is not running
                 foregroundSubscription?.remove()
-
                 // Start watching position in real-time
                 foregroundSubscription = await Location.watchPositionAsync(
                     {
@@ -65,12 +84,13 @@ const HomeScreen = () => {
                         accuracy: Location.Accuracy.BestForNavigation,
                     },
                     location => {
+                        console.log("Location: ",location.coords)
                         setPosition(location.coords)
                     }
                 )
         }
         startForegroundUpdate()
-    }, [])
+    }, []) */
 
     useEffect(() => {
         const startBackgroundUpdate = async () => {
@@ -113,11 +133,11 @@ const HomeScreen = () => {
     
     }, [])
 
-    // Stop location tracking in foreground
+/*     // Stop location tracking in foreground
     const stopForegroundUpdate = () => {
         foregroundSubscription?.remove()
         setPosition(null)
-    }
+    } */
 
     // Stop location tracking in background
     const stopBackgroundUpdate = async () => {
@@ -143,34 +163,36 @@ const HomeScreen = () => {
 
     return (
         <View style={styles.container}>
-              
             <MapView
                 style={styles.map}
-                // initialRegion={position}
                 initialRegion={{
-                    latitude: position?.latitude,
-                    longitude: position?.longitude,
+                    latitude: position ? position.latitude : 53.396705,
+                    longitude: position ? position.longitude : -6.260222,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
                 showsUserLocation={true}
+            >
+                <MapViewDirections
+                    origin={coordinates[0]}
+                    destination={coordinates[1]} //DEMO
+                    //destination={coordinates[coordinates.length() - 1]}
+                    //waypoints={[position?.]}
+                    apikey={API_KEY}
+                    strokeWidth={4}
+                    strokeColor="#111111"
+                />
+            </MapView>
+
+            <TextInput placeholder='Search here' style={styles.search} />
+            <Icon
+                name='location-pin'
+                color={'#000'}
+                size={25}
+                style={styles.searchIcon}
             />
-            <GooglePlacesAutocomplete
-              style={styles.searchBar}
-      placeholder='Search'
-      onPress={(data, details = null) => {
-        // 'details' is provided when fetchDetails = true
-        console.log(data, details);
-      }}
-      query={{
-        key: 'key',
-        language: 'en',
-      }}
-    />
         </View>
-        
     );
-  };
-}
+};
 
 export default HomeScreen;
