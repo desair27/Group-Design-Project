@@ -30,7 +30,7 @@ const HomeScreen = () => {
     const [seenRoads, setSeenRoads] = useState([[[]]])
     // Define position state: {latitude: number, longitude: number}
     const [position, setPosition] = useState(null)
-   
+
     TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
         if (error) {
             console.error(error)
@@ -43,26 +43,22 @@ const HomeScreen = () => {
             if (location) {
                 console.log("Location read in background: ", location.coords)
                 if(!position) {
-                    console.log("Current position state: ", position)
                     console.log("Initiating geolocation")
                     setPosition(location.coords)
-                    console.log("Current position state: ", position)
                 }
                 else if(
                     (position.latitude - 0.00001 > location.coords.latitude || location.coords.latitude > position.latitude + 0.00001) && 
                     (position.longitude - 0.00001 > location.coords.longitude || location.coords.longitude > position.longitude + 0.00001)
                 ){
-                    console.log("Current position state: ", position)
                     console.log("Setting new geolocation")
                     setPosition(location.coords)
-                    console.log("Current position state: ", position)
-                    console.log("point reached")
                 }
             }
         }
     })
 
     useEffect(() => {
+        console.log("Updating seenRoads")
         if(seenRoads){
           // If there are no routes, create one
           if(seenRoads.length == 0){
@@ -81,6 +77,7 @@ const HomeScreen = () => {
   
           // Append updated or new route coordinate
           seenRoads[seenRoads.length - 1] = lastRoute
+          console.log("Updated seenRoads: ", seenRoads)
         }
       }, [position])
 
@@ -187,37 +184,41 @@ const HomeScreen = () => {
         },
     ]);
 
-    return (
-        <View style={styles.container}>
-            <MapView
-                style={styles.map}
-                initialRegion={{
-                    latitude: position?.latitude,
-                    longitude: position?.longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-                showsUserLocation={true}
-            >
-                <MapViewDirections
-                    origin={coordinates[0]}
-                    destination={coordinates[1]} //DEMO
-                    //destination={coordinates[coordinates.length() - 1]}
-                    //waypoints={[position?.]}
-                    apikey={API_KEY}
-                    strokeWidth={4}
-                    strokeColor="#111111"
-                />
-            </MapView>
 
-            <TextInput placeholder='Search here' style={styles.search} />
-            <Icon
-                name='location-pin'
-                color={'#000'}
-                size={25}
-                style={styles.searchIcon}
-            />
-        </View>
+    return (
+        position ?
+            <View style={styles.container}>
+                <MapView
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: position?.latitude,
+                        longitude: position?.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                    showsUserLocation={true}
+                >
+                    <MapViewDirections
+                        origin={coordinates[0]}
+                        destination={coordinates[1]} //DEMO
+                        //destination={coordinates[coordinates.length() - 1]}
+                        //waypoints={[position?.]}
+                        apikey={API_KEY}
+                        strokeWidth={4}
+                        strokeColor="#111111"
+                    />
+                </MapView>
+
+                <TextInput placeholder='Search here' style={styles.search} />
+                <Icon
+                    name='location-pin'
+                    color={'#000'}
+                    size={25}
+                    style={styles.searchIcon}
+                />
+            </View> 
+        :
+            <View style={styles.container}/>
     );
 };
 

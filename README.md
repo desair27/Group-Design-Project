@@ -34,4 +34,11 @@ Reminder to not store any API key, especially one connected to a billing account
 - Open the command line
 - Enter 'telnet localhost 5554'
 - Follow instructions on screen to authenticate (e.g. auth AorHsFy4jpuB/ScO)
-- Enter 'geo fix 53.3432489 -6.2685455'
+- Enter 'geo fix -6.2685455 53.3432489'
+
+### Locations to simulate with
+- geo fix -6.2685455 53.3432489
+- geo fix -6.2699195 53.3431980
+- geo fix -6.2698870 53.3425380
+- geo fix -6.2698300 53.3421230
+
