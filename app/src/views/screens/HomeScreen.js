@@ -26,8 +26,18 @@ const HomeScreen = () => {
     const [errorMsg, setErrorMsg] = useState(null);
     /* An array of 2D arrays. Each 2D array has the coordinates for a specific
        route, split up into arrays of size 15 because 15 is the max number of
-       waypoints in a route for react-native-maps*/ 
-    const [seenRoads, setSeenRoads] = useState([[[]]])
+       waypoints in a route for react-native-maps*/
+    const [seenRoads, setSeenRoads] = useState([[[
+        /* {
+            "latitude": 53.3432489,
+            "longitude": -6.2685455,
+        },
+        { 
+            "latitude": 53.3431980,
+            "longitude": -6.2699195,
+        } */
+    ]]])
+    const [routes, setRoutes] = useState([])
     // Define position state: {latitude: number, longitude: number}
     const [position, setPosition] = useState(null)
 
@@ -42,14 +52,14 @@ const HomeScreen = () => {
             const location = locations[0]
             if (location) {
                 console.log("Location read in background: ", location.coords)
-                if(!position) {
+                if (!position) {
                     console.log("Initiating geolocation")
                     setPosition(location.coords)
                 }
-                else if(
-                    (position.latitude - 0.00001 > location.coords.latitude || location.coords.latitude > position.latitude + 0.00001) && 
+                else if (
+                    (position.latitude - 0.00001 > location.coords.latitude || location.coords.latitude > position.latitude + 0.00001) &&
                     (position.longitude - 0.00001 > location.coords.longitude || location.coords.longitude > position.longitude + 0.00001)
-                ){
+                ) {
                     console.log("Setting new geolocation")
                     setPosition(location.coords)
                 }
@@ -59,27 +69,38 @@ const HomeScreen = () => {
 
     useEffect(() => {
         console.log("Updating seenRoads")
-        if(seenRoads){
-          // If there are no routes, create one
-          if(seenRoads.length == 0){
-              seenRoads.push([]);
-          }
-  
-          // Insert another segment if the the current segment has size >= 15
-          let lastRoute =  seenRoads[seenRoads.length - 1]
-          let lastSegment = lastRoute[lastRoute.length - 1]
-          if(lastSegment >= 15) {
-              lastRoute.push([position])
-          } else {
-              lastSegment.push(position)
-              lastRoute.push(lastSegment)
-          }
-  
-          // Append updated or new route coordinate
-          seenRoads[seenRoads.length - 1] = lastRoute
-          console.log("Updated seenRoads: ", seenRoads)
+        let seenRoadsCopy = seenRoads
+        if (seenRoadsCopy && position) {
+
+            let newCord = {
+                latitude: position.latitude,
+                longitude: position.longitude
+            }
+
+            // If there are no routes, create one
+            if (seenRoadsCopy.length == 0) {
+                seenRoadsCopy.push([]);
+            }
+
+            // Insert another segment if the the current segment has size >= 15
+            let lastRoute = seenRoadsCopy[seenRoadsCopy.length - 1]
+            let lastSegment = lastRoute[lastRoute.length - 1]
+            if (lastSegment == 15) {
+                // append the new segment
+                let prevEnd = lastSegment[14]
+                lastRoute.push([prevEnd, newCord])
+            } else {
+                // replace the last segment with this updated version
+                lastSegment.push(newCord)
+                lastRoute[lastRoute.length - 1] = lastSegment
+            }
+
+            // Append updated or new route coordinate
+            seenRoadsCopy[seenRoads.length - 1] = lastRoute
+            console.log("Updated seenRoads: ", seenRoadsCopy)
+            setSeenRoads(seenRoadsCopy)
         }
-      }, [position])
+    }, [position])
 
     // Request permissions right after starting the app
     useEffect(() => {
@@ -90,30 +111,30 @@ const HomeScreen = () => {
         requestPermissions()
     }, [])
 
-/*     useEffect(() => {
-        const startForegroundUpdate = async () => {
-        // Check if foreground permission is granted
-            const { granted } = await Location.getForegroundPermissionsAsync()
-                if (!granted) {
-                    console.log("location tracking denied")
-                    return
-                }
-                 // Make sure that foreground location tracking is not running
-                foregroundSubscription?.remove()
-                // Start watching position in real-time
-                foregroundSubscription = await Location.watchPositionAsync(
-                    {
-                        // For better logs, we set the accuracy to the most sensitive option
-                        accuracy: Location.Accuracy.BestForNavigation,
-                    },
-                    location => {
-                        console.log("Location: ",location.coords)
-                        setPosition(location.coords)
+    /*     useEffect(() => {
+            const startForegroundUpdate = async () => {
+            // Check if foreground permission is granted
+                const { granted } = await Location.getForegroundPermissionsAsync()
+                    if (!granted) {
+                        console.log("location tracking denied")
+                        return
                     }
-                )
-        }
-        startForegroundUpdate()
-    }, []) */
+                     // Make sure that foreground location tracking is not running
+                    foregroundSubscription?.remove()
+                    // Start watching position in real-time
+                    foregroundSubscription = await Location.watchPositionAsync(
+                        {
+                            // For better logs, we set the accuracy to the most sensitive option
+                            accuracy: Location.Accuracy.BestForNavigation,
+                        },
+                        location => {
+                            console.log("Location: ",location.coords)
+                            setPosition(location.coords)
+                        }
+                    )
+            }
+            startForegroundUpdate()
+        }, []) */
 
     useEffect(() => {
         const startBackgroundUpdate = async () => {
@@ -123,14 +144,14 @@ const HomeScreen = () => {
                 console.log("location tracking denied")
                 return
             }
-    
+
             // Make sure the task is defined otherwise do not start tracking
             const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
             if (!isTaskDefined) {
                 console.log("Task is not defined")
                 return
             }
-    
+
             // Don't track if it is already running in background
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TASK_NAME
@@ -139,7 +160,7 @@ const HomeScreen = () => {
                 console.log("Already started")
                 return
             }
-    
+
             await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
                 // For better logs, we set the accuracy to the most sensitive option
                 accuracy: Location.Accuracy.BestForNavigation,
@@ -153,14 +174,14 @@ const HomeScreen = () => {
             })
         }
         startBackgroundUpdate()
-    
+
     }, [])
 
-/*     // Stop location tracking in foreground
-    const stopForegroundUpdate = () => {
-        foregroundSubscription?.remove()
-        setPosition(null)
-    } */
+    /*     // Stop location tracking in foreground
+        const stopForegroundUpdate = () => {
+            foregroundSubscription?.remove()
+            setPosition(null)
+        } */
 
     // Stop location tracking in background
     const stopBackgroundUpdate = async () => {
@@ -184,6 +205,48 @@ const HomeScreen = () => {
         },
     ]);
 
+    const generateRoutes = () => {
+        let result = []
+        console.log("routes:", seenRoads)
+        for (let route of seenRoads) {
+            console.log("route:", route)
+            for (let segment of route) {
+/*                 // deal with the cases where segment has length < 3
+                if(segment.length < 3) {
+                    segment
+                } */
+                console.log("first:", segment[0])
+                console.log("last:", segment[segment.length - 1])
+                console.log("slice:", segment.slice(1,-1))
+                result.push(
+                    <MapViewDirections
+                        origin={segment[0]}
+                        destination={segment[segment.length - 1]}
+                        waypoints={segment.slice(1)}
+                        apikey={API_KEY}
+                        strokeWidth={4}
+                        strokeColor="#111111"/>
+                    /* Running this gives the exact same object, but for some reason
+                       this works whereas the above shows all coords apart from the last
+                    <MapViewDirections
+                        origin={{
+                            "latitude": 53.3432483,
+                            "longitude": -6.268545,
+                          }}
+                        destination={{
+                            "latitude": 53.3431967,
+                            "longitude": -6.2699183,
+                          }} //DEMO
+                        waypoints={segment.slice(1,-1)}
+                        apikey={API_KEY}
+                        strokeWidth={4}
+                        strokeColor="#111111"/> */
+                )
+            }
+        }
+        console.log(result)
+        return result
+    }
 
     return (
         position ?
@@ -198,15 +261,7 @@ const HomeScreen = () => {
                     }}
                     showsUserLocation={true}
                 >
-                    <MapViewDirections
-                        origin={coordinates[0]}
-                        destination={coordinates[1]} //DEMO
-                        //destination={coordinates[coordinates.length() - 1]}
-                        //waypoints={[position?.]}
-                        apikey={API_KEY}
-                        strokeWidth={4}
-                        strokeColor="#111111"
-                    />
+                    {generateRoutes()}
                 </MapView>
 
                 <TextInput placeholder='Search here' style={styles.search} />
@@ -216,9 +271,9 @@ const HomeScreen = () => {
                     size={25}
                     style={styles.searchIcon}
                 />
-            </View> 
-        :
-            <View style={styles.container}/>
+            </View>
+            :
+            <View style={styles.container} />
     );
 };
 
