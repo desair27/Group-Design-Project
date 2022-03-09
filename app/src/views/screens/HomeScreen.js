@@ -11,7 +11,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
-//import { API_KEY } from "@env"
+import { API_KEY } from "@env"
 
 const LOCATION_TASK_NAME = "LOCATION_TASK"
 let foregroundSubscription = null
@@ -204,7 +204,7 @@ const HomeScreen = () => {
                     destination={coordinates[1]} //DEMO
                     //destination={coordinates[coordinates.length() - 1]}
                     //waypoints={[position?.]}
-                    apikey={""}
+                    apikey={API_KEY}
                     strokeWidth={4}
                     strokeColor="#111111"
                 />
