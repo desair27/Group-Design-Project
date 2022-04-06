@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { SafeAreaView, View, Text, TextInput, Image, Pressable, Alert } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
@@ -10,13 +10,48 @@ import colors from '../../constants/color';
 import styles from '../../styles';
 
 import{getAuth, createUserWithEmailAndPassword} from "firebase/auth";
-const auth = getAuth
-const [email,setEmail] = useState('')
-const [password,setPassword] = useState('')
-const RegisterUser = ()=>{
-    createUserWithEmailAndPassword(auth,email,password)
-}
+import { initializeApp } from "firebase/app";
+
 const SignUpScreen = ({ navigation }) => {
+    const firebaseConfig = {
+        apiKey: "AIzaSyBvOgZSA_oiOk0isCQOaqvhR_hncMEyb58",
+        authDomain: "group-design-project-b6580.firebaseapp.com",
+        projectId: "group-design-project-b6580",
+        storageBucket: "group-design-project-b6580.appspot.com",
+        messagingSenderId: "69491248463",
+        appId: "1:69491248463:web:f2282dc46010d2117e093a",
+        measurementId: "G-5HSGKYG924"
+      };
+      
+      
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app, auth)
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
+    const RegisterUser = ()=>{
+        console.log('signing')
+        console.log(email)
+        console.log(password)
+
+        createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            console.log(user)
+            // ...
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage)
+            // ..
+        });
+    }
+
     return (
         <SafeAreaView
             style={{ paddingVertical: 50, paddingHorizontal: 40, flex: 1, backgroundColor: colors.purple }}>
