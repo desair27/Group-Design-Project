@@ -11,7 +11,8 @@ import styles from '../../styles';
 
 import{getAuth, createUserWithEmailAndPassword} from "firebase/auth";
 const auth = getAuth
-
+const [email,setEmail] = useState('')
+const [password,setPassword] = useState('')
 const RegisterUser = ()=>{
     createUserWithEmailAndPassword(auth,email,password)
 }
@@ -58,7 +59,7 @@ const SignUpScreen = ({ navigation }) => {
                         <TextInput 
                         placeholder='Email' 
                         value={email} 
-                        
+                        onChangeText={text=>setEmail(text)} 
                         style={styles.input} />
                     </View>
 
@@ -73,7 +74,7 @@ const SignUpScreen = ({ navigation }) => {
                         <TextInput
                             placeholder='Password'
                             value={password} 
-                            
+                            onChangeText={text=>setPassword(text)} 
                             style={styles.input}
                             secureTextEntry
                         />
