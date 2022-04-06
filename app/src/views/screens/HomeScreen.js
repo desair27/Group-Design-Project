@@ -7,14 +7,34 @@ import styles from '../../styles';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import MapViewDirections from 'react-native-maps-directions';
+import { Marker } from 'react-native-maps'
 
 import * as Location from 'expo-location';
+// import { GeofencingEventType } from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
-import { API_KEY } from "@env"
+// import { API_KEY } from "@env"
 
+const API_KEY = "AIzaSyC_o3Sh_wasHqrHq8T-BTqCfJkDUjbO_jE"
+
+//const GEOFENCING_TASK_NAME = "GEOFENCING_TASK"
 const LOCATION_TASK_NAME = "LOCATION_TASK"
 let foregroundSubscription = null
+
+class Landmark{
+    constructor(title, desc, lat, lng) {
+        this.title = title;
+        this.desc = desc;
+        this.lat = lat;
+        this.lng = lng;
+        this.visited = false;
+    }
+}
+
+
+
+
+
 
 // const API_KEY = process.env.PLACES_API_KEY
 // const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
@@ -41,6 +61,21 @@ const HomeScreen = () => {
     // Define position state: {latitude: number, longitude: number}
     const [position, setPosition] = useState(null)
 
+    
+     
+    const landmarks = [
+        new Landmark('The Spire', 'Iconic steel sculpture in the centre of O\' Connell Street', 53.349722, -6.26), 
+        new Landmark('Ha\'penny Bridge', 'Iconic bridge spanning the Liffey', 53.346111, -6.262778),
+        new Landmark('Trinity College Dublin', 'Prestigious university in the city centre of Dublin', 53.3425, -6.252778),
+        new Landmark('St Stephen\'s Green', 'Picturesque park in the heart of Dublin', 53.338056, -6.258889),
+        new Landmark('Dáil Éireann', 'Seat of parliament for the Republic of Ireland', 53.339167, -6.253333),
+        new Landmark('Dún Laoghaire Lexicon', 'Striking public library overlooking Dún Laoghaire harbour', 53.292778, -6.131667),
+        new Landmark('University College Dublin', 'Dublin university touted as the cutting-edge of Irish research', 53.3075, -6.221944)
+    ]
+    landmarks[2].visited = "true"
+
+   
+
     TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
         if (error) {
             console.error(error)
@@ -66,6 +101,20 @@ const HomeScreen = () => {
             }
         }
     })
+
+    //TaskManager.defineTask(GEOFENCING_TASK_NAME, ({ data: { eventType, region }, error }) => {
+        //if (error) {
+          // check `error.message` for more details.
+          //return;
+        //}
+        //if (eventType === GeofencingEventType.Enter) {
+          //console.log("You've entered region:", region);
+        //} else if (eventType === GeofencingEventType.Exit) {
+          //console.log("You've left region:", region);
+        //}
+    //});
+
+    
 
     useEffect(() => {
         console.log("Updating seenRoads")
@@ -111,6 +160,11 @@ const HomeScreen = () => {
         requestPermissions()
     }, [])
 
+    // useEffect(() => {
+        // var markers = [
+
+        //]
+    //}, [])
     /*     useEffect(() => {
             const startForegroundUpdate = async () => {
             // Check if foreground permission is granted
@@ -225,7 +279,7 @@ const HomeScreen = () => {
                         waypoints={segment.slice(1)}
                         apikey={API_KEY}
                         strokeWidth={4}
-                        strokeColor="#111111"/>
+                        strokeColor="#FF0000"/>
                     /* Running this gives the exact same object, but for some reason
                        this works whereas the above shows all coords apart from the last
                     <MapViewDirections
@@ -248,6 +302,102 @@ const HomeScreen = () => {
         return result
     }
 
+    const generateMarkers= () => {
+        let result = [
+            // <Marker
+            //     title = {'The Spire'}
+            //     description = {'Iconic steel sculpture in the centre of O\' Connell Street'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.349722,
+            //         longitude: -6.26,
+            //     }}
+            //     flat = {true}
+            // />,
+            // <Marker
+            //     title = {'Ha\'penny Bridge'}
+            //     description = {'Iconic bridge spanning the Liffey'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.346111,
+            //         longitude: -6.262778,
+            //     }}
+            //     flat = {true}
+            // />,
+            // <Marker
+            //     title = {'Trinity College Dublin'}
+            //     description = {'Prestigious university in the city centre of Dublin'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.3425,
+            //         longitude: -6.252778,
+            //     }}
+            //     flat = {true}
+            // />,
+            // <Marker
+            //     title = {'St Stephen\'s Green'}
+            //     description = {'Picturesque park in the heart of Dublin'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.338056,
+            //         longitude: -6.258889,
+            //     }}
+            //     flat = {true}
+            // />,
+            // <Marker
+            //     title = {'Dáil Éireann'}
+            //     description = {'Seat of parliament for the Republic of Ireland'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.339167,
+            //         longitude: -6.253333,
+            //     }}
+            //     flat = {true}
+            // />,
+            // <Marker
+            //     title = {'Dún Laoghaire Lexicon'}
+            //     description = {'Striking public library overlooking Dún Laoghaire harbour'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.292778,
+            //         longitude: -6.131667,
+            //     }}
+            //     flat = {true}
+            // />,
+            // <Marker
+            //     title = {'University College Dublin'}
+            //     description = {'Dublin university touted as the cutting-edge of Irish research'}
+            //     pinColor = {'#0000FF'}
+            //     coordinate = {{
+            //         latitude: 53.3075,
+            //         longitude: -6.221944,
+            //     }}
+            //     flat = {true}
+            // />
+        ]
+        for(let landmark in landmarks) {
+            const pin_color = '#0000FF'
+            if(landmarks[landmark].visited == "true") {
+                pin_color = '#FF0000'
+            }
+            result.push(
+                <Marker
+                    title = {landmarks[landmark].title}
+                    description = {landmarks[landmark].desc}
+                    pinColor = {pin_color}
+                    coordinate = {{
+                        latitude: landmarks[landmark].lat,
+                        longitude: landmarks[landmark].lng,
+                    }}
+                    flat = {true}
+                />
+
+            )
+
+        }
+        return result
+    }
+
     return (
         position ?
             <View style={styles.container}>
@@ -262,6 +412,7 @@ const HomeScreen = () => {
                     showsUserLocation={true}
                 >
                     {generateRoutes()}
+                    {generateMarkers()}
                 </MapView>
 
                 <TextInput placeholder='Search here' style={styles.search} />
