@@ -21,8 +21,7 @@ const SignUpScreen = ({ navigation }) => {
         messagingSenderId: "69491248463",
         appId: "1:69491248463:web:f2282dc46010d2117e093a",
         measurementId: "G-5HSGKYG924"
-      };
-      
+    };
       
     const app = initializeApp(firebaseConfig);
 
@@ -42,6 +41,7 @@ const SignUpScreen = ({ navigation }) => {
             const user = userCredential.user;
             console.log(user)
             // ...
+            navigation.navigate('Home')
         })
         .catch((error) => {
             const errorCode = error.code;
