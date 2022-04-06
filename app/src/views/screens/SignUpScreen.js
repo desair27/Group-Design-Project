@@ -9,6 +9,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../constants/color';
 import styles from '../../styles';
 
+import{getAuth, createUserWithEmailAndPassword} from "firebase/auth";
+const auth = getAuth
+
+const RegisterUser = ()=>{
+    createUserWithEmailAndPassword(auth,email,password)
+}
 const SignUpScreen = ({ navigation }) => {
     return (
         <SafeAreaView
@@ -49,7 +55,11 @@ const SignUpScreen = ({ navigation }) => {
                             size={20}
                             style={styles.inputIcon}
                         />
-                        <TextInput placeholder='Email' style={styles.input} />
+                        <TextInput 
+                        placeholder='Email' 
+                        value={email} 
+                        
+                        style={styles.input} />
                     </View>
 
                     {/* PASSWORD */}
@@ -62,6 +72,8 @@ const SignUpScreen = ({ navigation }) => {
                         />
                         <TextInput
                             placeholder='Password'
+                            value={password} 
+                            
                             style={styles.input}
                             secureTextEntry
                         />
@@ -84,8 +96,8 @@ const SignUpScreen = ({ navigation }) => {
 
                     {/* REGISTER BUTTON */}
                     <View>
-                        <Pressable style={styles.button} onPress={() => Alert.alert('Registering...')}>
-                            <Text style={styles.text}>{'Register'}</Text>
+                        <Pressable style={styles.button} onPress={RegisterUser} >
+                            <Text style={styles.text} >{'Register'}</Text >
                         </Pressable>
                     </View>
 

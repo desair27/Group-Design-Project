@@ -36,7 +36,10 @@ const SignInScreen = ({ navigation }) => {
                             size={20}
                             style={styles.inputIcon}
                         />
-                        <TextInput placeholder='Email' style={styles.input} />
+                        <TextInput 
+                        placeholder='Email' 
+                        
+                        style={styles.input} />
                     </View>
                     <View style={styles.inputContainer}>
                         <Icon
@@ -49,6 +52,7 @@ const SignInScreen = ({ navigation }) => {
                             placeholder='Password'
                             style={styles.input}
                             secureTextEntry
+                            
                         />
                     </View>
 
