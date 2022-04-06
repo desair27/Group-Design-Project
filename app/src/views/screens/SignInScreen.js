@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { SafeAreaView, View, Text, TextInput, Image, Pressable } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,7 +9,48 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../constants/color';
 import styles from '../../styles';
 
+import{getAuth, signInWithEmailAndPassword} from "firebase/auth";
+import { initializeApp } from "firebase/app";
 const SignInScreen = ({ navigation }) => {
+    const firebaseConfig = {
+        apiKey: "AIzaSyBvOgZSA_oiOk0isCQOaqvhR_hncMEyb58",
+        authDomain: "group-design-project-b6580.firebaseapp.com",
+        projectId: "group-design-project-b6580",
+        storageBucket: "group-design-project-b6580.appspot.com",
+        messagingSenderId: "69491248463",
+        appId: "1:69491248463:web:f2282dc46010d2117e093a",
+        measurementId: "G-5HSGKYG924"
+      };
+      
+      
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app, auth)
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
+    const SignInUser = ()=>{
+        console.log('signing')
+        console.log(email)
+        console.log(password)
+
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            console.log(user)
+            navigation.navigate('Home')
+            // ...
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage)
+            // ..
+        });
+    }
     return (
         <SafeAreaView
             style={{ paddingVertical: 50, paddingHorizontal: 40, flex: 1, backgroundColor: colors.purple }}>
@@ -38,7 +79,8 @@ const SignInScreen = ({ navigation }) => {
                         />
                         <TextInput 
                         placeholder='Email' 
-                        
+                        value={email}
+                        onChangeText={text=>setEmail(text)}
                         style={styles.input} />
                     </View>
                     <View style={styles.inputContainer}>
@@ -51,6 +93,8 @@ const SignInScreen = ({ navigation }) => {
                         <TextInput
                             placeholder='Password'
                             style={styles.input}
+                            value={password}
+                            onChangeText={text=>setPassword(text)}
                             secureTextEntry
                             
                         />
@@ -58,7 +102,7 @@ const SignInScreen = ({ navigation }) => {
 
                     {/* LOGIN BUTTON */}
                     <View>
-                        <Pressable style={styles.button} onPress={() => navigation.navigate('Home')}>
+                        <Pressable style={styles.button} onPress={() => {SignInUser()} }>
                             <Text style={styles.text}>{'Login'}</Text>
                         </Pressable>
                     </View>
