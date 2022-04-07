@@ -10,24 +10,31 @@ import MapViewDirections from 'react-native-maps-directions';
 import { Marker } from 'react-native-maps'
 
 import * as Location from 'expo-location';
-// import { GeofencingEventType } from 'expo-location';
+import { GeofencingEventType } from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
 // import { API_KEY } from "@env"
 
-const API_KEY = "AIzaSyC_o3Sh_wasHqrHq8T-BTqCfJkDUjbO_jE"
+const API_KEY = ""
 
-//const GEOFENCING_TASK_NAME = "GEOFENCING_TASK"
+const GEOFENCING_TASK_NAME = "GEOFENCING_TASK"
 const LOCATION_TASK_NAME = "LOCATION_TASK"
 let foregroundSubscription = null
 
 class Landmark{
-    constructor(title, desc, lat, lng) {
+    constructor(title, desc, latitude, longitude, identifier, radius) {
         this.title = title;
         this.desc = desc;
-        this.lat = lat;
-        this.lng = lng;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.identifier = identifier;
+        this.radius = radius;
         this.visited = false;
+    }
+
+    toLocationRegion() {
+        const { identifier, latitude, longitude, radius } = this;
+        return { identifier, latitude, longitude, radius };
     }
 }
 
@@ -64,15 +71,18 @@ const HomeScreen = () => {
     
      
     const landmarks = [
-        new Landmark('The Spire', 'Iconic steel sculpture in the centre of O\' Connell Street', 53.349722, -6.26), 
-        new Landmark('Ha\'penny Bridge', 'Iconic bridge spanning the Liffey', 53.346111, -6.262778),
-        new Landmark('Trinity College Dublin', 'Prestigious university in the city centre of Dublin', 53.3425, -6.252778),
-        new Landmark('St Stephen\'s Green', 'Picturesque park in the heart of Dublin', 53.338056, -6.258889),
-        new Landmark('Dáil Éireann', 'Seat of parliament for the Republic of Ireland', 53.339167, -6.253333),
-        new Landmark('Dún Laoghaire Lexicon', 'Striking public library overlooking Dún Laoghaire harbour', 53.292778, -6.131667),
-        new Landmark('University College Dublin', 'Dublin university touted as the cutting-edge of Irish research', 53.3075, -6.221944)
+        new Landmark('The Spire', 'Iconic steel sculpture in the centre of O\' Connell Street', 53.349722, -6.26, 'spire', 10), 
+        new Landmark('Ha\'penny Bridge', 'Iconic bridge spanning the Liffey', 53.346111, -6.262778, 'bridge', 10),
+        new Landmark('Trinity College Dublin', 'Prestigious university in the city centre of Dublin', 53.3425, -6.252778, 'tcd', 10),
+        new Landmark('St Stephen\'s Green', 'Picturesque park in the heart of Dublin', 53.338056, -6.258889, 'green', 10),
+        new Landmark('Dáil Éireann', 'Seat of parliament for the Republic of Ireland', 53.339167, -6.253333, 'dail', 10),
+        new Landmark('Dún Laoghaire Lexicon', 'Striking public library overlooking Dún Laoghaire harbour', 53.292778, -6.131667, 'lib', 10),
+        new Landmark('University College Dublin', 'Dublin university touted as the cutting-edge of Irish research', 53.3075, -6.221944, 'ucd', 10)
     ]
     landmarks[2].visited = "true"
+
+    const regions = landmarks.map((l) => l.toLocationRegion())
+    
 
    
 
@@ -102,17 +112,20 @@ const HomeScreen = () => {
         }
     })
 
-    //TaskManager.defineTask(GEOFENCING_TASK_NAME, ({ data: { eventType, region }, error }) => {
-        //if (error) {
+    TaskManager.defineTask(GEOFENCING_TASK_NAME, ({ data: { eventType, region }, error }) => {
+        if (error) {
           // check `error.message` for more details.
-          //return;
-        //}
-        //if (eventType === GeofencingEventType.Enter) {
-          //console.log("You've entered region:", region);
-        //} else if (eventType === GeofencingEventType.Exit) {
-          //console.log("You've left region:", region);
-        //}
-    //});
+          return;
+        }
+        if (eventType === GeofencingEventType.Enter) {
+          console.log("You've entered region:", region.identifier);
+          for (let landmark in landmarks){
+              if (landmarks[landmark].identifier == region.identifier){
+                  landmarks[landmark].visited = "true"
+              }
+          }
+        } 
+    });
 
     
 
@@ -160,35 +173,18 @@ const HomeScreen = () => {
         requestPermissions()
     }, [])
 
-    // useEffect(() => {
-        // var markers = [
-
-        //]
-    //}, [])
-    /*     useEffect(() => {
-            const startForegroundUpdate = async () => {
-            // Check if foreground permission is granted
-                const { granted } = await Location.getForegroundPermissionsAsync()
-                    if (!granted) {
-                        console.log("location tracking denied")
-                        return
-                    }
-                     // Make sure that foreground location tracking is not running
-                    foregroundSubscription?.remove()
-                    // Start watching position in real-time
-                    foregroundSubscription = await Location.watchPositionAsync(
-                        {
-                            // For better logs, we set the accuracy to the most sensitive option
-                            accuracy: Location.Accuracy.BestForNavigation,
-                        },
-                        location => {
-                            console.log("Location: ",location.coords)
-                            setPosition(location.coords)
-                        }
-                    )
+    useEffect(() => {
+        const startGeofencing = async () => {
+            const isTaskDefined = TaskManager.isTaskDefined(GEOFENCING_TASK_NAME)
+            if (!isTaskDefined) {
+                console.log("Task is not defined")
+                return
             }
-            startForegroundUpdate()
-        }, []) */
+
+            await Location.startGeofencingAsync(GEOFENCING_TASK_NAME, regions)
+        }
+        startGeofencing()
+    }, [])
 
     useEffect(() => {
         const startBackgroundUpdate = async () => {
@@ -200,7 +196,7 @@ const HomeScreen = () => {
             }
 
             // Make sure the task is defined otherwise do not start tracking
-            const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
+            const isTaskDefined = TaskManager.isTaskDefined(LOCATION_TASK_NAME)
             if (!isTaskDefined) {
                 console.log("Task is not defined")
                 return
@@ -230,12 +226,6 @@ const HomeScreen = () => {
         startBackgroundUpdate()
 
     }, [])
-
-    /*     // Stop location tracking in foreground
-        const stopForegroundUpdate = () => {
-            foregroundSubscription?.remove()
-            setPosition(null)
-        } */
 
     // Stop location tracking in background
     const stopBackgroundUpdate = async () => {
@@ -303,78 +293,7 @@ const HomeScreen = () => {
     }
 
     const generateMarkers= () => {
-        let result = [
-            // <Marker
-            //     title = {'The Spire'}
-            //     description = {'Iconic steel sculpture in the centre of O\' Connell Street'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.349722,
-            //         longitude: -6.26,
-            //     }}
-            //     flat = {true}
-            // />,
-            // <Marker
-            //     title = {'Ha\'penny Bridge'}
-            //     description = {'Iconic bridge spanning the Liffey'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.346111,
-            //         longitude: -6.262778,
-            //     }}
-            //     flat = {true}
-            // />,
-            // <Marker
-            //     title = {'Trinity College Dublin'}
-            //     description = {'Prestigious university in the city centre of Dublin'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.3425,
-            //         longitude: -6.252778,
-            //     }}
-            //     flat = {true}
-            // />,
-            // <Marker
-            //     title = {'St Stephen\'s Green'}
-            //     description = {'Picturesque park in the heart of Dublin'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.338056,
-            //         longitude: -6.258889,
-            //     }}
-            //     flat = {true}
-            // />,
-            // <Marker
-            //     title = {'Dáil Éireann'}
-            //     description = {'Seat of parliament for the Republic of Ireland'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.339167,
-            //         longitude: -6.253333,
-            //     }}
-            //     flat = {true}
-            // />,
-            // <Marker
-            //     title = {'Dún Laoghaire Lexicon'}
-            //     description = {'Striking public library overlooking Dún Laoghaire harbour'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.292778,
-            //         longitude: -6.131667,
-            //     }}
-            //     flat = {true}
-            // />,
-            // <Marker
-            //     title = {'University College Dublin'}
-            //     description = {'Dublin university touted as the cutting-edge of Irish research'}
-            //     pinColor = {'#0000FF'}
-            //     coordinate = {{
-            //         latitude: 53.3075,
-            //         longitude: -6.221944,
-            //     }}
-            //     flat = {true}
-            // />
-        ]
+        let result = []
         for(let landmark in landmarks) {
             const pin_color = '#0000FF'
             if(landmarks[landmark].visited == "true") {
@@ -386,8 +305,8 @@ const HomeScreen = () => {
                     description = {landmarks[landmark].desc}
                     pinColor = {pin_color}
                     coordinate = {{
-                        latitude: landmarks[landmark].lat,
-                        longitude: landmarks[landmark].lng,
+                        latitude: landmarks[landmark].latitude,
+                        longitude: landmarks[landmark].longitude,
                     }}
                     flat = {true}
                 />
