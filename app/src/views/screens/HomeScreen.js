@@ -47,7 +47,10 @@ class Landmark{
 // const API_URL = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&libraries=places"
 
 // console.log(API_URL)
-
+let prevlat = []
+let prevlong = []
+let score = 0
+let firstRun = 1
 const HomeScreen = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -97,6 +100,23 @@ const HomeScreen = () => {
             const location = locations[0]
             if (location) {
                 console.log("Location read in background: ", location.coords)
+                console.log(getDistance(
+                    {latitude: location.coords.latitude,longitude: location.coords.longitude},
+                    {latitude: prevlat,longitude: prevlong}
+                ))
+                if(firstRun == 1){
+                    score = 0
+                    firstRun = 0
+                }
+                else{
+                    score = score + getDistance(
+                        {latitude: location.coords.latitude,longitude: location.coords.longitude},
+                        {latitude: prevlat,longitude: prevlong}
+                    )
+                }
+                console.log("Total Score: ",score)
+
+
                 if (!position) {
                     console.log("Initiating geolocation")
                     setPosition(location.coords)
@@ -109,6 +129,8 @@ const HomeScreen = () => {
                     setPosition(location.coords)
                 }
             }
+            prevlat = location.coords.latitude
+            prevlong = location.coords.longitude
         }
     })
 
